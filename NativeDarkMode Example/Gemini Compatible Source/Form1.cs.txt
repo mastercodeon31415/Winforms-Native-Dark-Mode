@@ -1,0 +1,252 @@
+﻿using NativeDarkMode.Utils;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace NativeDarkMode
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+            PopulateControls();
+
+            // The DarkTabControl handles its own theme. We just need to theme the main form
+            // and the contents of the tab pages.
+            this.BackColor = Color.FromArgb(33, 33, 33);
+            ApplyDarkTheme(this.Controls);
+        }
+
+        #region Dark Theme Logic
+
+        private void ApplyDarkTheme(Control.ControlCollection controls)
+        {
+            Color backColor = Color.FromArgb(33, 33, 33);
+            Color foreColor = Color.Silver;
+            Color borderColor = Color.FromArgb(80, 80, 80);
+
+            foreach (Control control in controls)
+            {
+                // Set default back and fore colors
+                try { if (!(control is DarkTabControl)) control.BackColor = backColor; } catch { }
+                try { control.ForeColor = foreColor; } catch { }
+
+                // --- Handle Specific Control Types ---
+                if (control is Button button)
+                {
+                    button.FlatStyle = FlatStyle.Flat;
+                    button.FlatAppearance.BorderColor = borderColor;
+                    button.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 60);
+                    button.FlatAppearance.MouseDownBackColor = Color.FromArgb(20, 20, 20);
+                }
+                else if (control is TextBox || control is RichTextBox || control is MaskedTextBox)
+                {
+                    control.BackColor = Color.FromArgb(50, 50, 50);
+                    if (control is TextBoxBase tb) { tb.BorderStyle = BorderStyle.FixedSingle; }
+                }
+                else if (control is ListBox || control is CheckedListBox)
+                {
+                    control.BackColor = Color.FromArgb(50, 50, 50);
+                    if (control is ListBox lb) { lb.BorderStyle = BorderStyle.FixedSingle; }
+                    if (control is CheckedListBox clb) { clb.BorderStyle = BorderStyle.FixedSingle; }
+                }
+                else if (control is ComboBox cb)
+                {
+                    control.BackColor = Color.FromArgb(50, 50, 50);
+                    cb.FlatStyle = FlatStyle.Flat;
+                }
+                else if (control is DataGridView dgv)
+                {
+                    dgv.BackgroundColor = backColor;
+                    dgv.GridColor = borderColor;
+                    dgv.BorderStyle = BorderStyle.FixedSingle;
+                    dgv.EnableHeadersVisualStyles = false;
+                    dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(50, 50, 50);
+                    dgv.ColumnHeadersDefaultCellStyle.ForeColor = foreColor;
+                    dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+                    dgv.DefaultCellStyle.BackColor = backColor;
+                    dgv.DefaultCellStyle.ForeColor = foreColor;
+                    dgv.DefaultCellStyle.SelectionBackColor = Color.SteelBlue;
+                    dgv.DefaultCellStyle.SelectionForeColor = Color.White;
+                    dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(40, 40, 40);
+                }
+                else if (control is ListView lv)
+                {
+                    lv.BackColor = Color.FromArgb(50, 50, 50);
+                    lv.ForeColor = foreColor;
+                    lv.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else if (control is TreeView tv)
+                {
+                    tv.BackColor = Color.FromArgb(50, 50, 50);
+                    tv.ForeColor = foreColor;
+                    tv.LineColor = borderColor;
+                    tv.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else if (control is ToolStrip ts)
+                {
+                    ts.Renderer = new DarkThemeRenderer();
+                }
+                else if (control is GroupBox gb)
+                {
+                    gb.ForeColor = foreColor;
+                }
+
+                // Recursively apply to child controls
+                if (control.HasChildren)
+                {
+                    ApplyDarkTheme(control.Controls);
+                }
+            }
+        }
+
+        // Custom renderer classes for MenuStrip and ToolStrip styling
+        public class DarkThemeColorTable : ProfessionalColorTable
+        {
+            private Color backColor = Color.FromArgb(33, 33, 33);
+            private Color selectedColor = Color.FromArgb(60, 60, 60);
+            private Color borderColor = Color.FromArgb(80, 80, 80);
+
+            public override Color MenuBorder => borderColor;
+            public override Color MenuItemBorder => borderColor;
+            public override Color MenuItemSelected => selectedColor;
+            public override Color ToolStripDropDownBackground => backColor;
+            public override Color ImageMarginGradientBegin => backColor;
+            public override Color ImageMarginGradientMiddle => backColor;
+            public override Color ImageMarginGradientEnd => backColor;
+            public override Color MenuItemPressedGradientBegin => backColor;
+            public override Color MenuItemPressedGradientEnd => backColor;
+            public override Color MenuItemSelectedGradientBegin => selectedColor;
+            public override Color MenuItemSelectedGradientEnd => selectedColor;
+            public override Color MenuStripGradientBegin => backColor;
+            public override Color MenuStripGradientEnd => backColor;
+            public override Color ToolStripGradientBegin => backColor;
+            public override Color ToolStripGradientMiddle => backColor;
+            public override Color ToolStripGradientEnd => backColor;
+            public override Color StatusStripGradientBegin => backColor;
+            public override Color StatusStripGradientEnd => backColor;
+            public override Color SeparatorDark => borderColor;
+            public override Color SeparatorLight => borderColor;
+        }
+
+        public class DarkThemeRenderer : ToolStripProfessionalRenderer
+        {
+            public DarkThemeRenderer() : base(new DarkThemeColorTable())
+            {
+                this.RoundedEdges = false;
+            }
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                e.TextColor = Color.Silver;
+                base.OnRenderItemText(e);
+            }
+        }
+        #endregion
+
+        #region Data Population and Event Handlers
+        private void PopulateControls()
+        {
+            // This method's content is unchanged
+            // Tab 1: Basic Controls
+            this.textBox1.Text = "This is a sample text.";
+            this.maskedTextBox1.Text = "12345";
+            this.checkBox1.Checked = true;
+            this.radioButton2.Checked = true;
+
+            // Tab 2: List Controls
+            string[] listItems = { "Apple", "Banana", "Cherry", "Date", "Elderberry" };
+            this.listBox1.Items.AddRange(listItems);
+            this.checkedListBox1.Items.AddRange(listItems);
+            this.comboBox1.Items.AddRange(listItems);
+            this.listBox1.SelectedIndex = 0;
+            this.checkedListBox1.SetItemChecked(1, true);
+            this.comboBox1.SelectedIndex = 2;
+
+            // ListView Population
+            this.listView1.View = View.Details;
+            this.listView1.Columns.Add("Product", 120);
+            this.listView1.Columns.Add("Price", 70);
+            this.listView1.Columns.Add("In Stock", 70);
+            string[] row1 = { "Laptop", "1200", "50" };
+            string[] row2 = { "Mouse", "25", "200" };
+            string[] row3 = { "Keyboard", "75", "150" };
+            this.listView1.Items.Add(new ListViewItem(row1));
+            this.listView1.Items.Add(new ListViewItem(row2));
+            this.listView1.Items.Add(new ListViewItem(row3));
+
+            // Tab 3: Data Controls
+            // DataGridView Population
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ID", typeof(int));
+            dt.Columns.Add("FirstName", typeof(string));
+            dt.Columns.Add("LastName", typeof(string));
+            dt.Columns.Add("IsMember", typeof(bool));
+            dt.Rows.Add(1, "John", "Doe", true);
+            dt.Rows.Add(2, "Jane", "Smith", false);
+            dt.Rows.Add(3, "Peter", "Jones", true);
+            this.dataGridView1.DataSource = dt;
+
+            // TreeView Population
+            TreeNode rootNode = new TreeNode("Categories");
+            TreeNode electronicsNode = new TreeNode("Electronics");
+            electronicsNode.Nodes.Add("Laptops");
+            electronicsNode.Nodes.Add("Smartphones");
+            TreeNode booksNode = new TreeNode("Books");
+            booksNode.Nodes.Add("Fiction");
+            booksNode.Nodes.Add("Non-Fiction");
+            rootNode.Nodes.Add(electronicsNode);
+            rootNode.Nodes.Add(booksNode);
+            this.treeView1.Nodes.Add(rootNode);
+            this.treeView1.ExpandAll();
+
+            // Tab 5: Other Controls
+            Bitmap bmp = new Bitmap(100, 100);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.FromArgb(50, 50, 50));
+                g.DrawString("Hi!", new Font("Arial", 24), Brushes.Silver, new PointF(20, 30));
+            }
+            this.pictureBox1.Image = bmp;
+            this.trackBar1.Value = 50;
+            this.progressBar1.Value = 50;
+            this.dateTimePicker1.Value = DateTime.Now;
+            this.monthCalendar1.SelectionStart = DateTime.Now.AddDays(3);
+            this.webBrowser1.DocumentText = "<html><body style='background-color:#212121; color:silver;'><h1>Hello, World!</h1><p>This is a WebBrowser control.</p></body></html>";
+            this.richTextBox1.Text = "This is a RichTextBox. You can apply formatting like ";
+            int startIndex = this.richTextBox1.Text.Length;
+            this.richTextBox1.AppendText("bold");
+            this.richTextBox1.Select(startIndex, 4);
+            this.richTextBox1.SelectionFont = new Font(this.richTextBox1.Font, FontStyle.Bold);
+            this.richTextBox1.SelectionColor = Color.LightSkyBlue;
+            this.richTextBox1.AppendText(" and ");
+            startIndex = this.richTextBox1.Text.Length;
+            this.richTextBox1.AppendText("italic");
+            this.richTextBox1.Select(startIndex, 6);
+            this.richTextBox1.SelectionFont = new Font(this.richTextBox1.Font, FontStyle.Italic);
+            this.richTextBox1.SelectionColor = Color.LightGreen;
+            this.richTextBox1.AppendText(".");
+        }
+
+        private void btnShowMessageBox_Click(object sender, EventArgs e) { /* ... original code ... */ }
+        private void btnOpenFileDialog_Click(object sender, EventArgs e) { /* ... original code ... */ }
+        private void btnSaveFileDialog_Click(object sender, EventArgs e) { /* ... original code ... */ }
+        private void btnFontDialog_Click(object sender, EventArgs e) { /* ... original code ... */ }
+        private void btnColorDialog_Click(object sender, EventArgs e) { /* ... original code ... */ }
+        private void trackBar1_Scroll(object sender, EventArgs e) { this.progressBar1.Value = this.trackBar1.Value; }
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e) { MessageBox.Show("All WinForms Controls Demo Application", "About"); }
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e) { Application.Exit(); }
+        #endregion
+
+        private void darkTabControl1_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}

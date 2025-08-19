@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NativeDarkMode_Lib_NET\NativeDarkMode_Lib_NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DarkTabControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="DarkTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>

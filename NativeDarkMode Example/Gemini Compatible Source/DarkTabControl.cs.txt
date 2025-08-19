@@ -1,0 +1,218 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.Design;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace NativeDarkMode
+{
+    [Designer(typeof(DarkTabControlDesigner))]
+    public partial class DarkTabControl : UserControl
+    {
+        private DarkTabPage _selectedTab;
+
+        #region --- Properties ---
+
+        /// <summary>
+        /// A proxy property that enables the Collection Editor in the designer.
+        /// It works by reading from and writing to the control's main Controls collection.
+        /// </summary>
+        [Category("Data")]
+        [Description("The collection of TabPage controls in the tab control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(DarkTabPageCollectionEditor), typeof(UITypeEditor))]
+        public List<DarkTabPage> TabPages
+        {
+            get
+            {
+                // Return a new, modifiable list from the master Controls collection.
+                return this.Controls.OfType<DarkTabPage>().ToList();
+            }
+            set
+            {
+                // This code runs when the user clicks "OK" in the Collection Editor.
+                if (value == null) return;
+
+                this.SuspendLayout();
+
+                // Remove only the old pages, leaving other controls intact.
+                var oldPages = this.Controls.OfType<DarkTabPage>().ToArray();
+                foreach (var page in oldPages)
+                {
+                    this.Controls.Remove(page);
+                }
+
+                // Add the new and reordered pages from the editor.
+                this.Controls.AddRange(value.ToArray());
+
+                this.ResumeLayout(true);
+                RebuildTabs();
+            }
+        }
+
+
+        [Category("Appearance")]
+        public DarkTabPage SelectedTab
+        {
+            get => _selectedTab;
+            set
+            {
+                if (_selectedTab == value) return;
+                _selectedTab = value;
+                UpdateTabSelection();
+            }
+        }
+
+        [Category("Appearance")] public Color ActiveTabColor { get; set; } = Color.FromArgb(60, 60, 60);
+        [Category("Appearance")] public Color InactiveTabColor { get; set; } = Color.FromArgb(45, 45, 45);
+        [Category("Appearance")] public Color HeaderBackgroundColor { get; set; } = Color.FromArgb(33, 33, 33);
+        [Category("Appearance")] public Color HeaderForegroundColor { get; set; } = Color.Silver;
+        [Category("Appearance")] public Color ContentBackgroundColor { get; set; } = Color.FromArgb(33, 33, 33);
+
+        #endregion
+
+        public DarkTabControl()
+        {
+            InitializeComponent();
+            this.Resize += DarkTabControl_Resize;
+            this.BackColor = ContentBackgroundColor;
+        }
+
+        #region --- Core Logic ---
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (!this.DesignMode)
+            {
+                RebuildTabs();
+            }
+        }
+
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+            if (e.Control is DarkTabPage page)
+            {
+                page.Visible = this.DesignMode;
+                if (this.DesignMode) RebuildTabs();
+            }
+        }
+
+        protected override void OnControlRemoved(ControlEventArgs e)
+        {
+            base.OnControlRemoved(e);
+            if (e.Control is DarkTabPage)
+            {
+                if (this.DesignMode) RebuildTabs();
+            }
+        }
+
+        private void DarkTabControl_Resize(object sender, EventArgs e)
+        {
+            UpdatePageLayout();
+        }
+
+        public void RebuildTabs()
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(RebuildTabs));
+                return;
+            }
+
+            panelTabButtons.Controls.Clear();
+            panelTabButtons.BackColor = HeaderBackgroundColor;
+
+            foreach (DarkTabPage page in this.Controls.OfType<DarkTabPage>())
+            {
+                RadioButton tabButton = new RadioButton
+                {
+                    Appearance = Appearance.Button,
+                    Text = page.Text,
+                    Tag = page,
+                    Size = new Size(100, 24),
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    FlatStyle = FlatStyle.Flat,
+                    ForeColor = HeaderForegroundColor,
+                    BackColor = InactiveTabColor
+                };
+                tabButton.FlatAppearance.BorderSize = 0;
+                tabButton.FlatAppearance.MouseOverBackColor = Color.FromArgb(80, 80, 80);
+                tabButton.FlatAppearance.MouseDownBackColor = Color.FromArgb(20, 20, 20);
+                tabButton.FlatAppearance.CheckedBackColor = ActiveTabColor;
+                tabButton.CheckedChanged += TabButton_CheckedChanged;
+                panelTabButtons.Controls.Add(tabButton);
+            }
+
+            var currentPages = this.Controls.OfType<DarkTabPage>();
+            if (SelectedTab != null && !currentPages.Contains(SelectedTab))
+            {
+                SelectedTab = currentPages.FirstOrDefault();
+            }
+            else if (SelectedTab == null && currentPages.Any())
+            {
+                SelectedTab = currentPages.First();
+            }
+            else
+            {
+                UpdateTabSelection();
+            }
+        }
+
+        private void TabButton_CheckedChanged(object sender, EventArgs e)
+        {
+            var selectedButton = sender as RadioButton;
+            if (selectedButton != null && selectedButton.Checked)
+            {
+                SelectedTab = selectedButton.Tag as DarkTabPage;
+            }
+        }
+
+        private void UpdateTabSelection()
+        {
+            UpdatePageLayout();
+
+            foreach (var button in panelTabButtons.Controls.OfType<RadioButton>())
+            {
+                var page = button.Tag as DarkTabPage;
+                if (page != null)
+                {
+                    bool isSelected = (page == _selectedTab);
+                    button.Checked = isSelected;
+                    button.BackColor = isSelected ? ActiveTabColor : InactiveTabColor;
+                }
+            }
+
+            foreach (var page in this.Controls.OfType<DarkTabPage>())
+            {
+                bool isSelected = (page == _selectedTab);
+                if (!this.DesignMode)
+                {
+                    if (page.Visible != isSelected) page.Visible = isSelected;
+                }
+                if (isSelected) page.BringToFront();
+            }
+        }
+
+        private void UpdatePageLayout()
+        {
+            Rectangle contentBounds = new Rectangle(
+                this.ClientRectangle.Left,
+                this.ClientRectangle.Top + panelTabButtons.Height,
+                this.ClientRectangle.Width,
+                this.ClientRectangle.Height - panelTabButtons.Height);
+
+            foreach (var page in this.Controls.OfType<DarkTabPage>())
+            {
+                page.Bounds = contentBounds;
+                page.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            }
+        }
+
+        #endregion
+    }
+}
