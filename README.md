@@ -17,9 +17,24 @@ Then add ```Converter.DarkModeEnable(this);``` as the last line of code in any o
 
 ## Example
 ```csharp
-public Form1()
+using System;
+using System.Data;
+using System.Drawing;
+using System.Windows.Forms;
+
+using NativeDarkMode_Lib;
+using NativeDarkMode_Lib.Utils; // For DarkMessageBox.Show usage. 
+
+namespace YourProjectNamespace
 {
-	// Your Form constructor code here. Inclue any GUI code you need to setup as well. 
-	Converter.DarkModeEnable(this);
+    public partial class Form1 : Form
+	{
+		public Form1()
+		{
+			// Your Form constructor code here.
+			// Inclue any GUI code you need to setup as well. 
+			Converter.DarkModeEnable(this);
+		}
+	}
 }
 ```
