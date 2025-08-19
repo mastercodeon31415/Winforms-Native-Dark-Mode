@@ -38,3 +38,8 @@ namespace YourProjectNamespace
 	}
 }
 ```
+
+## Donation links
+Anything is super helpful! Anything donated helps me keep developing this program and others!
+- https://www.paypal.com/paypalme/lifeline42
+- https://cash.app/$codoen314
