@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using NativeDarkMode_Lib;
-using NativeDarkMode_Lib.Utils;
+using NativeDarkMode_Lib.Utils; // For DarkMessageBox.Show usage. 
 
 namespace NativeDarkMode_NET
 {
