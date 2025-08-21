@@ -1,3 +1,8 @@
+![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet?logo=.net)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mastercodeon31415/Winforms-Native-Dark-Mode/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/mastercodeon31415/Winforms-Native-Dark-Mode)](https://github.com/mastercodeon31415/Winforms-Native-Dark-Mode/issues)
+[![GitHub stars](https://img.shields.io/github/stars/mastercodeon31415/Winforms-Native-Dark-Mode)](https://github.com/mastercodeon31415/Winforms-Native-Dark-Mode/stargazers)
+
 # Native Dark Mode Lib for Winforms
 
 ## What this is
